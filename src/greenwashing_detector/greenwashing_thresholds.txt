@@ -1,0 +1,69 @@
+**Greenwashing Detection Model**
+
+### **Introduction**
+Greenwashing refers to deceptive marketing strategies where companies exaggerate or misrepresent their environmental efforts. This model aims to detect potential greenwashing by analyzing image colors, particularly focusing on green hues, brightness, contrast, and color distribution.
+
+---
+
+### **Methodology**
+To improve the accuracy of greenwashing detection, we analyze only the **green regions** in the image rather than the entire image. The key steps include:
+
+#### **1. Identifying Green Regions**
+To extract only the green areas from an image, we use the **HSV color space**:
+```python
+hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+lower_green = np.array([35, 40, 40])  # Lower threshold for green
+upper_green = np.array([85, 255, 255])  # Upper threshold for green
+mask = cv2.inRange(hsv, lower_green, upper_green)
+```
+This mask isolates green-colored pixels for further analysis.
+
+#### **2. Calculating Brightness in Green Regions**
+Brightness is measured using the **V channel** of the HSV model:
+```python
+v_channel = hsv[:, :, 2]
+green_brightness = np.mean(v_channel[mask > 0])
+```
+This ensures we measure brightness only in the **green** regions, avoiding interference from other colors.
+
+#### **3. Measuring Contrast in Green Regions**
+Contrast is evaluated by calculating the **standard deviation** of the grayscale version of the image, only within green regions:
+```python
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+green_contrast = np.std(gray[mask > 0])
+```
+A high standard deviation indicates higher contrast.
+
+#### **4. Analyzing Other Colors (Red & Blue)**
+To detect potential manipulation, we also measure the proportion of **red and blue** in the image:
+```python
+lower_red = np.array([0, 50, 50])
+upper_red = np.array([10, 255, 255])
+red_mask = cv2.inRange(hsv, lower_red, upper_red)
+red_percentage = np.count_nonzero(red_mask) / (image.shape[0] * image.shape[1])
+
+lower_blue = np.array([100, 50, 50])
+upper_blue = np.array([140, 255, 255])
+blue_mask = cv2.inRange(hsv, lower_blue, upper_blue)
+blue_percentage = np.count_nonzero(blue_mask) / (image.shape[0] * image.shape[1])
+```
+High red and blue content could indicate that the image is not purely eco-friendly but might be artificially balanced.
+
+#### **5. Final Greenwashing Score Calculation**
+To determine the likelihood of greenwashing, we combine the measured parameters:
+```python
+score = (green_percentage * 1.5) + (green_contrast * 0.8) 
+- (blue_percentage * 0.7) - (red_percentage * 1.2) 
++ (green_brightness * 0.5)
+```
+This equation accounts for the weight of each factor in influencing the perception of an eco-friendly image.
+
+---
+
+### **Conclusion**
+✔ This model effectively detects greenwashing by focusing on **green areas**, rather than analyzing the entire image.
+✔ Adjusting **brightness and contrast thresholds** ensures a more **accurate** representation of artificially enhanced images.
+✔ Future improvements may include machine learning models for deeper image analysis.
+
+Would you like additional customization or testing examples for this model?
+

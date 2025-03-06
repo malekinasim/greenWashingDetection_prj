@@ -4,15 +4,15 @@ import pyreadr
 import fitz
 from src.utils.file_utils import is_dir, get_file_path
 
-class pdfFileUtils:
+class PdfFileUtils:
     _SELECTED_PDF_INFOS = None
 
     def __init__(self):
-        if pdfFileUtils._SELECTED_PDF_INFOS is None:
-            pdfFileUtils._SELECTED_PDF_INFOS = self._calc_selected_pdf_infos()
+        if PdfFileUtils._SELECTED_PDF_INFOS is None:
+            PdfFileUtils._SELECTED_PDF_INFOS = self._calc_selected_pdf_infos()
 
     def get_selected_pdf_infos(self):
-        return pdfFileUtils._SELECTED_PDF_INFOS
+        return PdfFileUtils._SELECTED_PDF_INFOS
 
    # @staticmethod
     def _calc_selected_pdf_infos(self):
@@ -59,4 +59,4 @@ class pdfFileUtils:
             return []
         return [get_file_path(folder_path, f) for f in os.listdir(folder_path)
                 if f.endswith(".pdf") and self._is_pdf_valid(get_file_path(folder_path, f))
-                  and f.replace(".pdf", "") in pdfFileUtils._SELECTED_PDF_INFOS]
+                  and f.replace(".pdf", "") in PdfFileUtils._SELECTED_PDF_INFOS]

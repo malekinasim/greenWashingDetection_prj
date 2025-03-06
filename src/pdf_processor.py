@@ -1,7 +1,7 @@
 import fitz
 from pathlib import Path
 from src.utils.language_utils import detect_pdf_language
-from src.utils.pdf_file_utils import pdfFileUtils
+from src.utils.pdf_file_utils import PdfFileUtils
 class Metadata:
     def __init__(self, metadata):
         self.title=metadata.get("title", "Unknown")
@@ -19,7 +19,7 @@ class PDFProcessor:
         self.file_name,self.company, self.year = self.extract_pdf_info()
         self.metadata= Metadata(self.doc.metadata)
         self.language = self.detect_language()
-        selected_pdf_infos=pdfFileUtils().get_selected_pdf_infos()
+        selected_pdf_infos=PdfFileUtils().get_selected_pdf_infos()
         if(len(selected_pdf_infos)>0):
             self.sector=selected_pdf_infos[self.file_name][0]
             self.size=selected_pdf_infos[self.file_name][1]

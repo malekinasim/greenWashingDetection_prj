@@ -3,22 +3,9 @@ import numpy as np
 from pdf2image import convert_from_path
 from src.extractors.base_extractor import ImageExtractor
 from src.utils.file_utils import ensure_directory_exists
-import hashlib
+from src.config import IMAGE_SIZE_THRESHOALD_COEF
 
 class OpenCVExtractor(ImageExtractor):
-    
-    # def _calculate_image_hash(self, image):
-    #   if not isinstance(image, np.ndarray):
-    #       print("Error: Image is not a valid numpy array")
-    #       return None  # Skip this image
-
-    #   success, encoded_image = cv2.imencode('.png', image)
-    #   if not success:
-    #       print("Error: Could not encode image")
-    #       return None  # Skip this image
-
-    #   return hashlib.md5(encoded_image.tobytes()).hexdigest()
-
     def extract_images(self):
         if(self.extract_cover):
           images = convert_from_path(self.processor.pdf_path, first_page=1, last_page=1)
@@ -45,8 +32,8 @@ class OpenCVExtractor(ImageExtractor):
             for contour in (gray_contours if len(contours_v) < len(gray_contours) else (contours_v)):
               x, y, w, h = cv2.boundingRect(contour)
               img_height, img_width = img_cv.shape[:2]
-              min_width = img_width * 0.05
-              min_height = img_height * 0.05
+              min_width = img_width * IMAGE_SIZE_THRESHOALD_COEF
+              min_height = img_height * IMAGE_SIZE_THRESHOALD_COEF
               if w < min_width or  h < min_height:
                 continue
               
@@ -55,11 +42,12 @@ class OpenCVExtractor(ImageExtractor):
               image_bytes = cv2.imencode('.png', extracted_image)[1].tobytes()
               image_hash =self._calculate_image_hash(image_bytes)
               if image_hash in extracted_hashes:
-                      continue  
+                      continue 
+                     
               extracted_hashes.add(image_hash)
 
-              image_filename = f"{dir_path}\\{self.processor.company}_{self.processor.year}_p{i+1}_i{image_index}.png"
+              image_filename = f"{dir_path}\\opencv_p{i+1}_i{image_index}.png"
               cv2.imwrite(str(image_filename), extracted_image)
               extracted_images.append(image_filename)  
-              image_index=image_index+1
+              image_index+=1
         return extracted_images

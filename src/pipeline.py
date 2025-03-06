@@ -1,70 +1,71 @@
 from src.pdf_processor import PDFProcessor
 from src.extractors.pymupdf_extractor import PyMuPDFExtractor
 from src.extractors.opencv_extractor import OpenCVExtractor
-from src.rgbDetector.base_rgb_detector import RgbDetector
+from src.extractors.sparepdf_extractor import SparePdfExtractor
+from src.extractors.combined_extractor import CombinedExtractor
+from src.rgbDetector.base_rgb_detector import RgbDetector 
+from src.greenwashing_detector.GreenwashingDetector import GreenwashingDetector
 from src.utils.file_utils import ensure_directory_exists
-from src.utils.pdf_file_utils import pdfFileUtils
+from src.utils.pdf_file_utils import PdfFileUtils  # Fixed import name to match PEP8
 import os
 import pandas as pd
 
 class PDFPipeline:
-    def __init__(self, pdf_folder, image_folder,output_folder, method='PYMUPDF'):
+    def __init__(self, pdf_folder, image_folder, output_folder, method='PYMUPDF'):
         self.pdf_folder = pdf_folder
-        self.image_folder = os.path.join(image_folder, "pymupdf" if method=="PYMUPDF" else "opencv")
+        self.image_folder = os.path.join(image_folder, method)
         self.method = method
-        self.output_folder=os.path.join(output_folder, "pymupdf" if method=="PYMUPDF" else "opencv")
+        self.output_folder = os.path.join(output_folder, method)
         ensure_directory_exists(self.image_folder)
         ensure_directory_exists(self.output_folder)
-       
-    def _add_to_excel_data_frame(self,all_data):
-        file_path=os.path.join(self.output_folder, "output.xlsx")
-        data = pd.DataFrame(all_data, columns=["Company", "Year",
-                                               "sector","Size",
-                                                "Organization_type",
-                                                "Sec_SASB", "Region",
-                                                "Country","OECD",
-                                                "english_non_english", 
-                                                "Image Path",
-                                                "Title", 
-                                                "Author",
-                                                "Creation Date",
-                                                "Creator",
-                                                "modification Date",
-                                                "Subject",
-                                                "Keywords","pdf Language",
-                                                "Red %", "Green %", "Blue %"
-                                                #   ,"detected Object",
-                                                #   "detected nature Obj",
-                                                #   "detected nature object count"
-                                                ])
-        data.to_excel(file_path, index=False)
- 
-    def process_pdfs(self,extract_cover_image): 
-        all_data=[] 
-        for pdf_path in pdfFileUtils().get_pdf_files(self.pdf_folder):
-            processor = PDFProcessor(pdf_path)
-            extractor = PyMuPDFExtractor(processor, self.image_folder,extract_cover_image) if self.method == 'PYMUPDF' else OpenCVExtractor(processor, self.image_folder,extract_cover_image)
-            images = extractor.extract_images()
-            for image_path in images :
-                rgbDetector=RgbDetector(image_path)  
-                all_data.append([processor.company, processor.year,
-                                 processor.sector,processor.size,
-                                 processor.organization_type,
-                                 processor.sec_sasb,processor.region,
-                                 processor.country,processor.oecd,
-                                 processor.english_non_english ,
-                                 str(image_path),
-                                 processor.metadata.title,
-                                 processor.metadata.author,
-                                 processor.metadata.creationDate,
-                                 processor.metadata.creator,
-                                 processor.metadata.modDate,
-                                 processor.metadata.subject,
-                                 processor.metadata.keywords,
-                                 processor.language,
-                                 rgbDetector.red_percentage,
-                                 rgbDetector.green_percentage,
-                                 rgbDetector.blue_percentage])
-            self._add_to_excel_data_frame(all_data)         
-            print(f"Extracted {len(images)} images from {pdf_path}")
 
+    def _add_to_excel_data_frame(self, all_data):
+        file_path = os.path.join(self.output_folder, "output.xlsx")
+        data = pd.DataFrame(all_data, columns=["Company", "Year", "Sector", "Size",
+                                               "Organization_Type", "Sec_SASB", "Region", 
+                                               "Country", "OECD", "English_Non_English", 
+                                               "Image_Path", "Title", "Author", 
+                                               "Creation_Date", "Creator", "Modification_Date", 
+                                               "Subject", "Keywords", "PDF_Language", 
+                                               "Red_Percentage", "Green_Percentage", "Blue_Percentage", 
+                                               "Green_Brightness", "Green_Contrast", 
+                                               "Greenwashing_Result", "Greenwashing_Score"])
+        data.to_excel(file_path, index=False)
+
+    def _getExtractor(self, extract_cover_image, processor):
+        if self.method == 'PYMUPDF':
+            extractor = PyMuPDFExtractor(processor, self.image_folder, extract_cover_image)
+        elif self.method == 'OPENCV':
+            extractor = OpenCVExtractor(processor, self.image_folder, extract_cover_image)
+        elif self.method == 'SPAREPDF':
+            extractor = SparePdfExtractor(processor, self.image_folder, extract_cover_image)
+        else:
+            extractor = CombinedExtractor(processor, self.image_folder, extract_cover_image)
+
+        return extractor
+
+    def process_pdfs(self, extract_cover_image):
+        all_data = []  # List to store all extracted data
+        for pdf_path in PdfFileUtils().get_pdf_files(self.pdf_folder):
+            processor = PDFProcessor(pdf_path)
+            extractor = self._getExtractor(extract_cover_image, processor)
+            images = extractor.extract_images()
+
+            for image_path in images:
+                rgb_detector = RgbDetector(image_path)
+                greewashing_detector = GreenwashingDetector(rgb_detector=rgb_detector)  
+                all_data.append([processor.company, processor.year, processor.sector, processor.size,
+                                 processor.organization_type, processor.sec_sasb, processor.region,
+                                 processor.country, processor.oecd, processor.english_non_english,
+                                 str(image_path), processor.metadata.title, processor.metadata.author,
+                                 processor.metadata.creationDate, processor.metadata.creator,
+                                 processor.metadata.modDate, processor.metadata.subject,
+                                 processor.metadata.keywords, processor.language,
+                                 rgb_detector.red_percentage, rgb_detector.green_percentage,
+                                 rgb_detector.blue_percentage, rgb_detector.green_brightness,
+                                 rgb_detector.green_contrast, greewashing_detector.greenWashing_result,
+                                 greewashing_detector.greenWashing_score])
+
+            # Add data to Excel after processing all images in a PDF (for better performance)
+            self._add_to_excel_data_frame(all_data)
+            print(f"Extracted {len(images)} images from {pdf_path}")
