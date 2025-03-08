@@ -83,7 +83,6 @@ class ImageExtractor:
                 return True
             
         return False
-    
     def _create_output_directory(self):
         """Create output directory for saving images."""
         try:
