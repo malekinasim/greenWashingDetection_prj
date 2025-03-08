@@ -13,11 +13,13 @@ class GreenwashingDetector:
         
  
     def _detect_greenwashing(self ):
-        greenwashing_score = round( self.rgb_detector.green_percentage * self.green_coeff + 
+        greenwashing_score = round( 
+                             self.rgb_detector.green_percentage * self.green_coeff + 
                              self.rgb_detector.blue_percentage * self.blue_coeff + 
                              self.rgb_detector.red_percentage * self.red_coeff + 
                              self.rgb_detector.green_brightness * self.green_brightness_coeff +
-                             self.rgb_detector.green_contrast * self.green_contrast_coeff,2)
+                             self.rgb_detector.green_contrast * self.green_contrast_coeff,2
+                             )
      
         return  greenwashing_score, "Greenwashing"  if greenwashing_score>50 else "Not Greenwashing"
 

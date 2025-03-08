@@ -23,9 +23,7 @@ PDF_FOLDER_PATH = os.getenv('PDF_FOLDER_PATH', 'sample_dataSet')
 IMAGE_FOLDER_PATH = os.getenv('IMAGE_FOLDER_PATH', 'sample_dataSet/images') 
 EXCEL_OUTPUT_FOLDER_PATH = os.getenv('EXCEL_OUTPUT_FOLDER_PATH', 'sample_dataSet/output')
 RDS_FILE_PATH = os.getenv('RDS_FILE_PATH',"./DAV_assignment.rds" )
-NATURE_OBJECT = {"tree", "river", "leaf", "grass", "flower", "water", "mountain", "cloud", "bird","cat","dog","cow","horse","sheep","elephant","bear","zebra","giraffe","frisbee"}
-
-
+NATURE_OBJECT = {"tree", "river", "leaf", "grass", "flower", "water", "mountain", "cloud", "bird"}
 
 model = YOLO("yolov8x.pt")  
 CHECK_ALL_PAGE_IMAGES=False
@@ -118,7 +116,7 @@ def extract_images_pymupdf(pdf_path, output_folder,extract_cover_only=True):
 
 
 def get_best_preprocessing(image):
-    """تست خودکار تبدیل تصویر به GRAY یا HSV و انتخاب بهترین گزینه"""
+   
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, binary_gray = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
     contours_gray, _ = cv2.findContours(binary_gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

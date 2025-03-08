@@ -11,7 +11,7 @@ SELECTED_SECTORS = os.getenv('SELECTED_SECTORES','''Logistics,Conglomerates,Ener
                              Waste Management,Mining,Automotive,Metals Products,Chemicals''')
 SELECTED_YEARS = os.getenv('SELECTED_YEARS','''2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018''')
 RDS_FILE_PATH = os.getenv('RDS_FILE_PATH',"data\\DAV_assignment.rds" )
-IMAGE_SIZE_THRESHOALD_COEF=float(os.getenv('IMAGE_SIZE_THRESHOALD_COEF',0.05 ))
+IMAGE_SIZE_THRESHOLD_COEF=float(os.getenv('IMAGE_SIZE_THRESHOALD_COEF',0.05 ))
 
 LANG_MAP = {
     'en': 'eng',    # English

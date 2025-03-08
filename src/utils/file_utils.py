@@ -9,3 +9,8 @@ def is_dir(folder_path):
 def get_file_path(folder_path,file_path):
    return os.path.join(folder_path, file_path)
 
+def check_file_exists(path):
+        if not os.path.exists(path):
+           print(f"[ERROR] file not found: {path}")
+           return False
+        return True

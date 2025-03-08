@@ -14,7 +14,7 @@ class PdfFileUtils:
     def get_selected_pdf_infos(self):
         return PdfFileUtils._SELECTED_PDF_INFOS
 
-   # @staticmethod
+    
     def _calc_selected_pdf_infos(self):
         result = pyreadr.read_r(RDS_FILE_PATH)  
         df_rds = result[None]  
@@ -46,8 +46,7 @@ class PdfFileUtils:
             page = pdf_file.load_page(0)
             if not page:
                 print(f"Invalid PDF (unable to load the first page): {pdf_path}")
-                return False
-            pdf_file.close()  
+                return False 
             return True
         except Exception as e:
             print(f"Error opening PDF file '{pdf_path}': {e}")  

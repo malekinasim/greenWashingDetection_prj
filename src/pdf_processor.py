@@ -2,6 +2,7 @@ import fitz
 from pathlib import Path
 from src.utils.language_utils import detect_pdf_language
 from src.utils.pdf_file_utils import PdfFileUtils
+import re
 class Metadata:
     def __init__(self, metadata):
         self.title=metadata.get("title", "Unknown")
@@ -32,7 +33,8 @@ class PDFProcessor:
 
     def extract_pdf_info(self):
         file_name= Path(self.pdf_path).stem
-        parts=file_name.split("_")
+        cleaned_name = re.sub(r'[^\x00-\x7F]+', '_', file_name)
+        parts=cleaned_name.split("_")
         return file_name,parts[0], parts[1] if len(parts) > 1 else "Unknown"
 
     def detect_language(self):
