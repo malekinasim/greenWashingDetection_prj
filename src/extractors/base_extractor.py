@@ -1,5 +1,5 @@
 from pathlib import Path
-from ..utils.file_utils import ensure_directory_exists
+from src.utils.file_utils import ensure_directory_exists
 import hashlib
 import cv2
 from skimage.metrics import structural_similarity as ssim
