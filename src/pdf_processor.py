@@ -17,7 +17,7 @@ class PDFProcessor:
     def __init__(self, pdf_path):
         self.pdf_path = pdf_path
         self.doc = fitz.open(pdf_path)
-        self.file_name,self.company, self.year = self.extract_pdf_info()
+        self.file_name,self.company,self.year = self.extract_pdf_info()
         self.metadata= Metadata(self.doc.metadata)
         self.language = self.detect_language()
         selected_pdf_infos=PdfFileUtils().get_selected_pdf_infos()
@@ -34,7 +34,7 @@ class PDFProcessor:
     def extract_pdf_info(self):
         file_name= Path(self.pdf_path).stem
         cleaned_name = re.sub(r'[^\x00-\x7F]+', '_', file_name)
-        parts=cleaned_name.split("_")
+        parts=cleaned_name.rsplit("_",1)
         return file_name,parts[0], parts[1] if len(parts) > 1 else "Unknown"
 
     def detect_language(self):

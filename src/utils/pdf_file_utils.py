@@ -33,7 +33,8 @@ class PdfFileUtils:
             df_selected["Region"],
             df_selected["Country"],
             df_selected["OECD"],
-            df_selected["english_non_english"]
+            df_selected["english_non_english"],
+            df_selected["Year"]
         )))
 
     def _is_pdf_valid(self, pdf_path):
@@ -52,6 +53,54 @@ class PdfFileUtils:
             print(f"Error opening PDF file '{pdf_path}': {e}")  
             return False
 
+    def count_of_pdf_files_in_directory(self,folder_path):
+        try:
+            # List all files in the directory
+            files = os.listdir(folder_path)
+
+            # Filter out only PDF files by checking the extension
+            pdf_files = [file for file in files if file.lower().endswith('.pdf')]
+
+            # Return the count of PDF files
+            return len(pdf_files)
+        
+        except Exception as e:
+            print(f"[ERROR] An error occurred: {e}")
+            return 0
+    
+    def count_of_ivalid_pdf_files(self,folder_path):
+        try:
+            # List all files in the directory
+            files = os.listdir(folder_path)
+
+            # Filter out only PDF files by checking the extension
+            pdf_files = [file for file in files if self._is_pdf_valid(get_file_path(folder_path, file))]
+
+            # Return the count of PDF files
+            return len(pdf_files)
+        
+        except Exception as e:
+            print(f"[ERROR] An error occurred: {e}")
+            return 0
+    
+    def count_of_SELECTED_PDF_files(self,folder_path):
+        try:
+            # List all files in the directory
+            files = os.listdir(folder_path)
+
+            # Filter out only PDF files by checking the extension
+            pdf_files = [file for file in files if self._is_pdf_valid
+                         (get_file_path(folder_path, file)) and 
+                         file.lower().endswith('.pdf') and 
+                         file in PdfFileUtils._SELECTED_PDF_INFOS]
+
+            # Return the count of PDF files
+            return len(pdf_files)
+        
+        except Exception as e:
+            print(f"[ERROR] An error occurred: {e}")
+            return 0
+        
     def get_pdf_files(self, folder_path):
         if not is_dir(folder_path):
             print(f"Error: PDF folder ({folder_path}) does not exist!")

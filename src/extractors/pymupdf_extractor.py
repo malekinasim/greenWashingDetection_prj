@@ -76,6 +76,7 @@ class PyMuPDFExtractor(ImageExtractor):
             image_path = os.path.join(dir_path,f"pymupdf_p{page_index + 1}_i{img_index}.{base_image['ext']}")
             with open(image_path, "wb") as img_file:
                 img_file.write(base_image["image"])
+                img_file.close()
             return image_path
         except Exception as e:
             print(f"Error saving image {img_index} on page {page_index + 1}: {e}")

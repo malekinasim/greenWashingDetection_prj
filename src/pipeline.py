@@ -8,6 +8,7 @@ from src.greenwashing_detector.GreenwashingDetector import GreenwashingDetector
 from src.utils.file_utils import ensure_directory_exists
 from src.utils.pdf_file_utils import PdfFileUtils  
 import os
+from src.config import SELECTED_SECTORS, SELECTED_YEARS, RDS_FILE_PATH
 import pandas as pd
 
 class PDFPipeline:
@@ -46,7 +47,9 @@ class PDFPipeline:
 
     def process_pdfs(self, extract_cover_image):
         all_data = []  # List to store all extracted data
-        for pdf_path in PdfFileUtils().get_pdf_files(self.pdf_folder):
+        pdfFileUtils=PdfFileUtils()
+        pdf_paths=pdfFileUtils.get_pdf_files(self.pdf_folder)
+        for pdf_path in pdf_paths:
             processor = PDFProcessor(pdf_path)
             extractor = self._get_extractor(extract_cover_image, processor)
             images = extractor.extract_images()
@@ -71,5 +74,9 @@ class PDFPipeline:
                   print(f"Error processing {image_path  }")
                   print(e)
     
-            # Add data to Excel after processing all PDFs (for better performance)
-            self._add_to_excel_dataframe(all_data)
+        # Add data to Excel after processing all PDFs (for better performance)
+        self._add_to_excel_dataframe(all_data)
+        print(f'''the code check {pdfFileUtils.count_of_pdf_files_in_directory(self.pdf_folder)}
+ count pdf  files and there was {pdfFileUtils.count_of_ivalid_pdf_files(self.pdf_folder)}
+ count invalid pdf files and we select {len(pdf_paths)} count pdf of from these sector : {SELECTED_SECTORS}
+ and these years {SELECTED_YEARS} ''')

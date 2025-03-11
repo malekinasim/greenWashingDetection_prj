@@ -52,7 +52,61 @@ class ImageExtractor:
             print(f"Error calculating image similarity: {e}")
             return 0
 
-        
+
+    def _calculate_image_Overlap(self, image_path1, image_path2):
+        try:
+            #load the images in grayscale
+            img1 = cv2.imread(image_path1, cv2.IMREAD_GRAYSCALE)
+            img2 = cv2.imread(image_path2, cv2.IMREAD_GRAYSCALE)
+
+            #check if the images have the same size
+            if img1 is None or img2 is None:
+                print(f"error cannot loaded images {image_path1}, {image_path2}")
+                return 0
+
+            h1, w1 = img1.shape
+            h2, w2 = img2.shape
+
+            # check size of the images
+            if h1 >= h2 and w1 >= w2:
+                source_img, template_img = img1, img2
+                source_path, template_path = image_path1, image_path2
+            elif h2 >= h1 and w2 >= w1:
+                source_img, template_img = img2, img1
+                source_path, template_path = image_path2, image_path1
+            else:
+                # if the size of the images are not compatible
+                source_img, source_path = img1, image_path1
+                template_img, template_path = img2, image_path2
+
+                #check if the size of the template image is larger than the source image
+                if template_img.shape[0] > source_img.shape[0] or template_img.shape[1] > source_img.shape[1]:
+                    scale_w = source_img.shape[1] / template_img.shape[1]
+                    scale_h = source_img.shape[0] / template_img.shape[0]
+                    scale_factor = min(scale_w, scale_h)
+                    new_width = int(template_img.shape[1] * scale_factor)
+                    new_height = int(template_img.shape[0] * scale_factor)
+                    template_img = cv2.resize(template_img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+            
+            if template_img.shape[0] > source_img.shape[0] or template_img.shape[1] > source_img.shape[1]:
+                print(f"error: the size of the template image is larger than the source image. Paths: {source_path}, {template_path}")
+                return None, None
+
+            #execute template matching
+            result = cv2.matchTemplate(source_img, template_img, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+
+            if max_val >= 0.8:
+                return source_path, template_path
+            else:
+                return None, None
+
+        except Exception as e:
+            print(f"خطا در محاسبه شباهت تصاویر: {e}")
+            return None, None
+
+
 
     def _calculate_histogram_similarity(self, image_path1, image_path2):
         try :  
@@ -73,16 +127,27 @@ class ImageExtractor:
         except Exception as e:
             print(f"Error calculating histogram similarity: {e}")
             return 0
-        
-    
+
 
     def _is_duplicated_image(self, image_path, extracted_images):
         for extracted_image in extracted_images:
-            similarity = self._calculate_image_similarity(image_path, extracted_image)
-            if similarity > 0.7:
-                return True
+            if(extracted_image!=image_path):
+                ssim_similarity = self._calculate_image_similarity(image_path, extracted_image)
+                # histogram_similarity=self._calculate_histogram_similarity(image_path,extracted_image)
+                if ssim_similarity > 0.7 :
+                    return True
             
         return False
+    
+    
+    def _have_full_overLap(self, image_path, extracted_images):
+        samll_image_paths=[]
+        for extracted_image in extracted_images:
+            large_img,small_img = self._calculate_image_Overlap(image_path, extracted_image)
+            if large_img is not None and small_img is not None:
+               samll_image_paths.append(small_img)
+            
+        return samll_image_paths
     
     def _create_output_directory(self):
         """Create output directory for saving images."""
