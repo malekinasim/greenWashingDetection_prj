@@ -7,9 +7,12 @@ PDF_FOLDER_PATH = os.getenv('PDF_FOLDER_PATH', 'data\\sample_pdfs')
 IMAGE_FOLDER_PATH = os.getenv('IMAGE_FOLDER_PATH', 'data\\extracted_images')
 EXCEL_OUTPUT_FOLDER_PATH = os.getenv('EXCEL_OUTPUT_FOLDER_PATH', 'data\\output')
 
-SELECTED_SECTORS = os.getenv('SELECTED_SECTORES','''Logistics,Conglomerates,Energy Utilities,Construction,Energy,Construction Materials,
-                             Waste Management,Mining,Automotive,Metals Products,Chemicals''')
-SELECTED_YEARS = os.getenv('SELECTED_YEARS','''2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018''')
+SELECTED_SECTORS = os.getenv('SELECTED_SECTORES','''Household and Personal Products,Financial Services,Conglomerates,Tourism/Leisure,Telecommunications,Equipment,Technology Hardware,
+Mining,Forest and Paper Products,Food and Beverage Products,Other,Chemicals,Energy Utilities,Consumer Durables,Energy,Non-Profit / Services,
+Construction,Retailers,Construction Materials,Computers,Water Utilities,Public Agency,Media,Tobacco,Logistics,
+Textiles and Apparel,Automotive,Real Estate,Universities,Metals Products,Healthcare Services,Healthcare Products,Aviation,
+Commercial Services,Waste Management,Railroad,Agriculture,Toys''')
+SELECTED_YEARS = os.getenv('SELECTED_YEARS','''1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018''')
 RDS_FILE_PATH = os.getenv('RDS_FILE_PATH',"data\\DAV_assignment.rds" )
 IMAGE_SIZE_THRESHOLD_COEF=float(os.getenv('IMAGE_SIZE_THRESHOALD_COEF',0.05 ))
 

@@ -3,6 +3,7 @@ from src.config import SELECTED_SECTORS, SELECTED_YEARS, RDS_FILE_PATH
 import pyreadr
 import fitz
 from src.utils.file_utils import is_dir, get_file_path
+import re
 
 class PdfFileUtils:
     _SELECTED_PDF_INFOS = None
@@ -100,11 +101,22 @@ class PdfFileUtils:
         except Exception as e:
             print(f"[ERROR] An error occurred: {e}")
             return 0
-        
+    
+    def get_extracted_pdf(self, folder_path,image_folder):
+        if not is_dir(folder_path):
+            print(f"Error: PDF folder ({folder_path}) does not exist!")
+            return []
+        file_lists=[f for f in os.listdir(image_folder)]
+
+        return [os.path.join(folder_path,f) for f in os.listdir(folder_path)
+                if   re.sub(r'[^\x00-\x7F]+', '_', f.replace(".pdf", ""))  in file_lists] 
+    
+    
     def get_pdf_files(self, folder_path):
         if not is_dir(folder_path):
             print(f"Error: PDF folder ({folder_path}) does not exist!")
             return []
+        
         return [get_file_path(folder_path, f) for f in os.listdir(folder_path)
                 if f.endswith(".pdf") and self._is_pdf_valid(get_file_path(folder_path, f))
                   and f.replace(".pdf", "") in PdfFileUtils._SELECTED_PDF_INFOS]
