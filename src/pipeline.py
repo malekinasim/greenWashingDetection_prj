@@ -3,6 +3,8 @@ from src.extractors.pymupdf_extractor import PyMuPDFExtractor
 from src.extractors.opencv_extractor import OpenCVExtractor
 from src.extractors.sparepdf_extractor import SparePdfExtractor
 from src.extractors.combined_extractor import CombinedExtractor
+from src.object_detector.detr_obeject_detector import DTER_ObjectDetector
+from src.object_detector.yolo_object_detector import  YOLO_ObjectDetector
 from src.rgbDetector.base_rgb_detector import RgbDetector 
 from src.greenwashing_detector.GreenwashingDetector import GreenwashingDetector
 from src.utils.file_utils import ensure_directory_exists
@@ -11,14 +13,15 @@ import re
 import os
 import pandas as pd
 import fnmatch
-from src.config import model_DETR, processor_DETR, NATURE_OBJECT  
+from src.config import model_DETR, model_YOLO,processor_DETR, NATURE_OBJECT  
 
 
 class PDFPipeline:
-    def __init__(self, pdf_folder, image_folder, output_folder, method='PYMUPDF'):
+    def __init__(self, pdf_folder, image_folder, output_folder, method='PYMUPDF',object_detect_method='YOLO'):
         self.pdf_folder = pdf_folder
         self.image_folder = os.path.join(image_folder, method)
         self.method = method
+        self.object_detect_method = object_detect_method
         self.output_folder = os.path.join(output_folder, method)
         ensure_directory_exists(self.image_folder)
         ensure_directory_exists(self.output_folder)
@@ -39,7 +42,8 @@ class PDFPipeline:
             "Author", "Creation_Date", "Creator", "Modification_Date", "Subject", 
             "Keywords", "PDF_Language", "Red_Percentage", "Green_Percentage", 
             "Blue_Percentage", "Green_Brightness", "Green_Contrast", 
-            "Greenwashing_Result", "Greenwashing_Score"
+            "Greenwashing_Result", "Greenwashing_Score","detected objects",
+            "detected nature objects","detected nature object count"
         ]
 
         df = pd.DataFrame(all_data, columns=expected_columns)
@@ -59,7 +63,17 @@ class PDFPipeline:
         else:
             extractor = CombinedExtractor(processor, self.image_folder, extract_cover_image)
 
-        return extractor
+        return extractor  
+
+
+    def _get_object_detector(self):
+        if self.object_detect_method == 'YOLO':
+            detector = YOLO_ObjectDetector (model_YOLO,NATURE_OBJECT)
+        else:
+            detector = DTER_ObjectDetector(model_DETR,processor_DETR,NATURE_OBJECT)
+
+        return detector   
+      
     def create_output(self):
         image_extensions = ('*.jpg', '*.jpeg', '*.png', '*.gif', '*.bmp', '*.tiff', '*.webp')
         all_data = []  # List to store all extracted data
@@ -89,8 +103,11 @@ class PDFPipeline:
             for image_path in images:
                     try:
                         rgb_detector = RgbDetector(image_path)
+                        detector = self._get_object_detector()
+                        detected_obejects,detected_nature_obj=detector.get_detect_objects(image_path)
+                
                         greenwashing_detector = GreenwashingDetector(rgb_detector=rgb_detector)  
-                      
+                        
                         all_data.append([processor.company, processor.year, processor.sector, processor.size,
                                         processor.organization_type, processor.sec_sasb, processor.region,
                                         processor.country, processor.oecd, processor.english_non_english,
@@ -101,7 +118,12 @@ class PDFPipeline:
                                         rgb_detector.red_percentage, rgb_detector.green_percentage,
                                         rgb_detector.blue_percentage, rgb_detector.green_brightness,
                                         rgb_detector.green_contrast, greenwashing_detector.greenWashing_result,
-                                        greenwashing_detector.greenWashing_score])
+                                        greenwashing_detector.greenWashing_score,
+                                         ','.join(detected_obejects) if detected_obejects is not None or len(detected_obejects)==0  else '', 
+                                         ','.join(detected_nature_obj) if detected_nature_obj is not None or len(detected_nature_obj)==0  else '', 
+                                         len(detected_nature_obj) if detected_nature_obj is not None else 0
+                                        
+                                        ])
                         
                         #print(f"Extracted {len(images)} images from {pdf_path}")
                         print(f"len: {len(all_data)}")
