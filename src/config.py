@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-
+from transformers import DetrImageProcessor, DetrForObjectDetection
+from ultralytics import YOLO
 load_dotenv()
 
 PDF_FOLDER_PATH = os.getenv('PDF_FOLDER_PATH', 'data\\sample_pdfs')
@@ -15,6 +16,13 @@ Commercial Services,Waste Management,Railroad,Agriculture,Toys''')
 SELECTED_YEARS = os.getenv('SELECTED_YEARS','''1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018''')
 RDS_FILE_PATH = os.getenv('RDS_FILE_PATH',"data\\DAV_assignment.rds" )
 IMAGE_SIZE_THRESHOLD_COEF=float(os.getenv('IMAGE_SIZE_THRESHOALD_COEF',0.05 ))
+
+processor_DETR = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
+model_DETR = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
+
+NATURE_OBJECT = {"tree", "river", "leaf", "grass", "flower", "water", "mountain", "cloud", "bird"}
+
+model_YOLO = YOLO("yolov8x.pt")  
 
 LANG_MAP = {
     'en': 'eng',    # English

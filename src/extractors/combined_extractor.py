@@ -8,9 +8,9 @@ class CombinedExtractor(ImageExtractor):
     def __init__(self, processor, output_folder,extract_cover=True):
         super().__init__(processor, output_folder,extract_cover)
         self.methods = [
-            #PyMuPDFExtractor(processor, output_folder,extract_cover),
-            OpenCVExtractor(processor, output_folder,extract_cover)#,
-            # SparePdfExtractor(processor, output_folder,extract_cover)  
+            PyMuPDFExtractor(processor, output_folder,extract_cover),
+            OpenCVExtractor(processor, output_folder,extract_cover),
+            SparePdfExtractor(processor, output_folder,extract_cover)  
         ]
         
     

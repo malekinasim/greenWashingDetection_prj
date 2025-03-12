@@ -9,9 +9,10 @@ from src.utils.file_utils import ensure_directory_exists
 from src.utils.pdf_file_utils import PdfFileUtils  
 import re
 import os
-from src.config import SELECTED_SECTORS, SELECTED_YEARS, RDS_FILE_PATH
 import pandas as pd
 import fnmatch
+from src.config import model_DETR, processor_DETR, NATURE_OBJECT  
+
 
 class PDFPipeline:
     def __init__(self, pdf_folder, image_folder, output_folder, method='PYMUPDF'):
@@ -30,14 +31,8 @@ class PDFPipeline:
 
     def _add_to_excel_dataframe(self, all_data):
         file_path = os.path.join(self.output_folder, "output.xlsx")
-
-        # بررسی مقدار all_data
-        print(f"✅ تعداد رکوردها در all_data: {len(all_data)}")
         if not all_data:
-            print("⚠️ خطا: all_data خالی است!")
             return
-
-        # مشخص کردن نام ستون‌ها
         expected_columns = [
             "Company", "Year", "Sector", "Size", "Organization_Type", "Sec_SASB", 
             "Region", "Country", "OECD", "English_Non_English", "Image_Path", "Title", 
@@ -47,20 +42,10 @@ class PDFPipeline:
             "Greenwashing_Result", "Greenwashing_Score"
         ]
 
-        # تبدیل لیست به DataFrame با ستون‌های مشخص‌شده
         df = pd.DataFrame(all_data, columns=expected_columns)
-
-        # جایگزینی مقادیر NaN با مقدار خالی
         df.fillna('', inplace=True)
 
-        # حذف کاراکترهای غیرمجاز از تمام مقادیر
         df = df.applymap(self._remove_illegal_chars)
-
-        # بررسی ساختار داده‌ها
-        print("✅ ۵ سطر اول DataFrame:")
-        print(df.head())
-
-        # ذخیره در اکسل
         df.to_excel(file_path, index=False)
 
 
