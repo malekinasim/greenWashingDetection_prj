@@ -1,6 +1,5 @@
 import os
 from PIL import Image
-import torch
 from src.object_detector.base_object_detector import ObjectDetector
 
 class YOLO_ObjectDetector(ObjectDetector):
