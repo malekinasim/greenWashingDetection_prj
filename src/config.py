@@ -20,9 +20,11 @@ IMAGE_SIZE_THRESHOLD_COEF=float(os.getenv('IMAGE_SIZE_THRESHOALD_COEF',0.05 ))
 processor_DETR = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
 model_DETR = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
 
-NATURE_OBJECT = {"tree", "river", "leaf", "grass", "flower", "water", "mountain", "cloud", "bird"}
+NATURE_OBJECT = {'Leaf', 'Sea', 'Tree', 'cloud', 'forest', 'grass',
+                  'lake', 'river', 'sky', 'water', 'mountain', 'hill', 'valley', 'desert', 'sand', 'rock', 'stone', 'snow', 'ice', 'fire', 'smoke', 'ash', 'dust', 'fog', 'mist', 'haze', 'cloud', 'rain', 'snow', 'wind', 'storm', 'thunder', 'lightning', 'sun', 'moon', 'star', 'planet', 'comet', 'meteor', 
+                 'asteroid', 'galaxy', 'universe', 'earth', 'moon'}
 
-model_YOLO = YOLO("yolov8x.pt")  
+model_YOLO = YOLO("../runs/detect/train/weights/best.pt")  
 
 LANG_MAP = {
     'en': 'eng',    # English

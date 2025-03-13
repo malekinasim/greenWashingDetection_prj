@@ -140,5 +140,5 @@ class PDFPipeline:
             processor = PDFProcessor(pdf_path)
             extractor = self._get_extractor(extract_cover_image, processor)
             extractor.extract_images()
-            self.create_output()
+        self.create_output()
     
